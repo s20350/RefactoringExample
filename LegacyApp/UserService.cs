@@ -12,6 +12,8 @@ namespace LegacyApp
                 return false;
             }
             
+            
+            
             var clientRepository = new ClientRepository();
             var client = clientRepository.GetById(clientId);
 
@@ -24,28 +26,7 @@ namespace LegacyApp
                 LastName = lastName
             };
             
-            if (client.Type == "VeryImportantClient")
-            {
-                user.HasCreditLimit = false;
-            }
-            else if (client.Type == "ImportantClient")
-            {
-                using (var userCreditService = new UserCreditService())
-                {
-                    int creditLimit = userCreditService.GetCreditLimit(user.LastName, user.DateOfBirth);
-                    creditLimit = creditLimit * 2;
-                    user.CreditLimit = creditLimit;
-                }
-            }
-            else
-            {
-                user.HasCreditLimit = true;
-                using (var userCreditService = new UserCreditService())
-                {
-                    int creditLimit = userCreditService.GetCreditLimit(user.LastName, user.DateOfBirth);
-                    user.CreditLimit = creditLimit;
-                }
-            }
+            ConfigureCreditForUser(client, user, dateOfBirth, lastName);
             
             if (user.HasCreditLimit && user.CreditLimit < 500)
             {
@@ -74,7 +55,31 @@ namespace LegacyApp
             return age >= 21;
         }
 
-        
-        
+        private void ConfigureCreditForUser(Client client, User user, DateTime dateOfBirth, string lastName)
+        {
+            if (client.Type == "VeryImportantClient")
+            {
+                user.HasCreditLimit = false;
+            }
+            else if (client.Type == "ImportantClient")
+            {
+                using (var userCreditService = new UserCreditService())
+                {
+                    int creditLimit = userCreditService.GetCreditLimit(lastName, dateOfBirth);
+                    user.CreditLimit = creditLimit * 2;
+                }
+            }
+            else
+            {
+                user.HasCreditLimit = true;
+                using (var userCreditService = new UserCreditService())
+                {
+                    int creditLimit = userCreditService.GetCreditLimit(lastName, dateOfBirth);
+                    user.CreditLimit = creditLimit;
+                }
+            }
+
+        }
+
     }
 }
