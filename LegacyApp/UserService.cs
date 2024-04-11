@@ -6,25 +6,12 @@ namespace LegacyApp
     {
         public bool AddUser(string firstName, string lastName, string email, DateTime dateOfBirth, int clientId)
         {
-            if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
+            //Walidacja dla imienia, nazwiska, maila oraz daty urodzenia zostala zrealizowana za pomoca metod: IsUserValid oraz IsUserOfLegalAge i sa one wywolywane w tym miejscu
+            if (!IsUserValid(firstName, lastName, email) || !IsUserOfLegalAge(dateOfBirth))
             {
                 return false;
             }
-
-            if (!email.Contains("@") && !email.Contains("."))
-            {
-                return false;
-            }
-
-            var now = DateTime.Now;
-            int age = now.Year - dateOfBirth.Year;
-            if (now.Month < dateOfBirth.Month || (now.Month == dateOfBirth.Month && now.Day < dateOfBirth.Day)) age--;
-
-            if (age < 21)
-            {
-                return false;
-            }
-
+            
             var clientRepository = new ClientRepository();
             var client = clientRepository.GetById(clientId);
 
@@ -68,5 +55,26 @@ namespace LegacyApp
             UserDataAccess.AddUser(user);
             return true;
         }
+        
+        private bool IsUserValid(string firstName, string lastName, string email)
+        {
+            if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName) || !email.Contains("@") ||
+                !email.Contains(".")) {
+                return false;
+            }
+
+            return true;
+        }
+        
+        private bool IsUserOfLegalAge(DateTime dateOfBirth)
+        {
+            var today = DateTime.Today;
+            var age = today.Year - dateOfBirth.Year;
+            if (dateOfBirth > today.AddYears(-age)) age--;
+            return age >= 21;
+        }
+
+        
+        
     }
 }
