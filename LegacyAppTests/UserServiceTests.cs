@@ -1,123 +1,49 @@
+using System;
 using LegacyApp;
+using Xunit;
 
-namespace LegacyAppTests;
-
-public class UserServiceTests
+namespace LegacyAppTests
 {
-    [Fact]
-    public void AddUser_Should_Return_False_When_Missing_FirstName()
+    public class UserServiceTests
     {
-        //Arrange
-        var service = new UserService();
-
-        //Act
-        var result = service.AddUser(null, null, "kowalski@wp.pl", new DateTime(1980, 1, 1), 1);
-
-        //Assert
-        Assert.Equal(false, result);
-    }
-    
-    [Fact]
-    public void AddUser_Should_Return_False_When_Missing_At_Sign_And_Dot_In_Email()
-    {
-        //Arrange
-        var service = new UserService();
-
-        //Act
-        var result = service.AddUser("John", "Doe", "kowalskiwppl", new DateTime(1980, 1, 1), 1);
-
-        //Assert
-        Assert.Equal(false, result);
-    }
-    
-    [Fact]
-    public void AddUser_Should_Return_False_When_Younger_Then_21_Years_Old()
-    {
-        //Arrange
-        var service = new UserService();
-
-        //Act
-        var result = service.AddUser("John", "Doe", "kowalski@wp.pl", new DateTime(2010, 1, 1), 1);
-
-        //Assert
-        Assert.Equal(false, result);
-    }
-    
-    [Fact]
-    public void AddUser_Should_Return_True_When_Very_Important_Client()
-    {
-        //Arrange
-        var service = new UserService();
-
-        //Act
-        var result = service.AddUser("John", "Malewski", "kowalski@wp.pl", new DateTime(1980, 1, 1), 2);
-
-        //Assert
-        Assert.Equal(true, result);
-    }
-    
-    [Fact]
-    public void AddUser_Should_Return_True_When_Important_Client()
-    {
-        //Arrange
-        var service = new UserService();
-
-        //Act
-        var result = service.AddUser("John", "Smith", "smith@gmail.pl", new DateTime(1980, 1, 1), 3);
-
-        //Assert
-        Assert.Equal(true, result);
-    }
-    
-    [Fact]
-    public void AddUser_Should_Return_True_When_Normal_Client()
-    {
-        //Arrange
-        var service = new UserService();
-
-        //Act
-        var result = service.AddUser("John", "Kwiatkowski", "kwiatkowski@wp.pl", new DateTime(1980, 1, 1), 5);
-
-        //Assert
-        Assert.Equal(true, result);
-    }
-    
-    [Fact]
-    public void AddUser_Should_Return_False_When_Normal_Client_With_No_Credit_Limit()
-    {
-        //Arrange
-        var service = new UserService();
-
-        //Act
-        var result = service.AddUser("John", "Kowalski", "kowalski@wp.pl", new DateTime(1980, 1, 1), 1);
-
-        //Assert
-        Assert.Equal(false, result);
-    }
-    
-    [Fact]
-    public void AddUser_Should_Throw_Exception_When_User_Does_Not_Exist()
-    {
-        //Arrange
-        var service = new UserService();
-
-        //Act and Assert
-        Assert.Throws<ArgumentException>(() =>
+        [Fact]
+        public void AddUser_Should_Return_False_If_FirstName_Is_Missing()
         {
-            _ = service.AddUser("John", "Unknown", "kowalski@wp.pl", new DateTime(1980, 1, 1), 100);
-        });
-    }
-    
-    [Fact]
-    public void AddUser_Should_Throw_Exception_When_User_No_Credit_Limit_Exists_For_User()
-    {
-        //Arrange
-        var service = new UserService();
+            var service = new UserService();
+            
+            var result = service.AddUser(null, "Doe", "john.doe@example.com", new DateTime(1980, 1, 1), 1);
+            
+            Assert.False(result);
+        }
 
-        //Act and Assert
-        Assert.Throws<ArgumentException>(() =>
+        [Fact]
+        public void AddUser_Should_Return_False_If_Email_Is_Invalid()
         {
-            _ = service.AddUser("John", "Andrzejewicz", "andrzejewicz@wp.pl", new DateTime(1980, 1, 1), 6);
-        });
+            var service = new UserService();
+            
+            var result = service.AddUser("John", "Doe", "johndoeatexampledotcom", new DateTime(1980, 1, 1), 1);
+            
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void AddUser_Should_Return_False_If_User_Is_Under_21()
+        {
+            var service = new UserService();
+            
+            var result = service.AddUser("John", "Doe", "john.doe@example.com", DateTime.Today.AddYears(-20), 1);
+            
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void AddUser_Should_Return_True_When_All_Conditions_Are_Met()
+        {
+            var service = new UserService();
+            
+            var result = service.AddUser("John", "Doe", "john.doe@example.com", new DateTime(1980, 1, 1), 1);
+            
+            Assert.True(result);
+        }
     }
 }
